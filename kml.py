@@ -12,7 +12,7 @@ def kml_string(places):
 		   '<coordinates>%f,%f</coordinates>\n'
 		   '</Point>\n'
 		   '</Placemark>\n'
-		) % (place,lon,lat)
+		) % (place.replace("&", "&amp;"),lon,lat)
 		ret += placemark
 
 	return ret +'</Document></kml>'
