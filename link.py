@@ -19,14 +19,11 @@ def gen_link_atms(lat=51.51856,lon=-0.14377,maxDistance=3,max_results=50):
 
 	data = cache.get("http://clients.multimap.com/API/search/1.2/linkapi?output=xml&callback=MMSearchRequester.prototype._GeneralJSONCallback&dataSource=mm.clients.linkapi&count=%d&lat=%f&lon=%f&maxDistance=%d&orderByFields=distance&orderByOrder=asc&locale=en-us&deliveryID=%d&identifier=1"%(max_results,lat,lon,maxDistance,deliveryID), ref="http://www.link.co.uk/Style%20Library/ATMLocator.html", headers={"Cookie":"MDIN=%d"%mdin}, timeout=240).read()
 
-	open("dump","wb").write(data)
 	xml = parseString(data)
 
 	atms = {}
 	rs = xml.getElementsByTagName("RecordSet")[0]
-	#print >>stderr, rs.getAttribute('totalRecordCount')
 	records = rs.getElementsByTagName("Record")
-	#print >>stderr, len(records)
 	for record in records:
 		fields = record.getElementsByTagName("Field")
 		institution = ""
