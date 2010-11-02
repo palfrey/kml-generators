@@ -21,36 +21,32 @@ def gen_link_atms(lat=51.51856,lon=-0.14377,maxDistance=3,max_results=50):
 
 	xml = parseString(data)
 
-	atms = {}
 	rs = xml.getElementsByTagName("RecordSet")[0]
 	records = rs.getElementsByTagName("Record")
 	for record in records:
+		atm = {}
 		fields = record.getElementsByTagName("Field")
-		institution = ""
-		street = ""
-		skip = False
 		for field in fields:
-			if field.firstChild:
-				content = field.firstChild.data
+			if not field.firstChild:
+				content = ""
 			else:
-				continue
+				content = field.firstChild.data
 			name = field.getAttribute("name")
-			if name == "surcharge_value":
-				if int(content)>0:
-					skip = True
-					break
-			elif name == "street":
-				street = content
-			elif name == "institution_name":
-				institution = content
-		if skip:
+			atm[name] = content
+
+			atm["lat"] = float(record.getElementsByTagName("Lat")[0].firstChild.data)
+			atm["lon"] = float(record.getElementsByTagName("Lon")[0].firstChild.data)
+		yield atm
+
+def kml_gen_atms(lat=51.51856,lon=-0.14377,maxDistance=3,max_results=50):
+	atms = {}
+	for atm in gen_link_atms(lat=lat,lon=lon,maxDistance=maxDistance,max_results=max_results):
+		if atm.has_key("surcharge_value") and int(atm["surcharge_value"])>0:
 			continue
-
-		lat = float(record.getElementsByTagName("Lat")[0].firstChild.data)
-		lon = float(record.getElementsByTagName("Lon")[0].firstChild.data)
-
-		atms[institution+", "+street] = (lon, lat)
+		#print atm
+		atms[atm["institution_name"]+", "+atm["street"]] = (atm["lon"], atm["lat"])
 	return atms
 
-print kml_string(gen_link_atms())
+if __name__ == "__main__":
+	print kml_string(kml_gen_atms())
 
